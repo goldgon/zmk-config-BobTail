@@ -1,5 +1,40 @@
 #include "BobTail.dtsi"
 
+#include <dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <input/processors.dtsi>
+#include <dt-bindings/zmk/input_transform.h>
+
+
+/ {
+    input_processors {
+        zip_scroll_x_scaler: zip_scroll_x_scaler {
+            compatible = "zmk,input-processor-scaler";
+            #input-processor-cells = <2>;
+            type = <INPUT_EV_REL>;
+            codes = <INPUT_REL_HWHEEL>;
+            track-remainders;
+        };
+    };
+};
+
+
+ / {
+    input_processors {
+        zip_scroll_y_scaler: zip_scroll_y_scaler {
+            compatible = "zmk,input-processor-scaler";
+            #input-processor-cells = <2>;
+            type = <INPUT_EV_REL>;
+            codes = <INPUT_REL_WHEEL>;
+            track-remainders;
+        };
+    };
+};
+
+
+
+
+
 &default_transform {
     col-offset = <6>;
 };
@@ -18,6 +53,47 @@
     trackball_listener {
         compatible = "zmk,input-listener";
         device = <&trackball>;
+
+
+  scroller {
+        layers = <1>;
+        input-processors = 
+            // <&zip_xy_transform INPUT_TRANSFORM_XY_SWAP>,        //X軸とY軸の入れ替え
+            // <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,       //X軸反転
+            <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,       //Y軸反転
+            <&zip_xy_to_scroll_mapper>,                         //スクロールモードに変更
+            <&zip_scroll_transform INPUT_TRANSFORM_X_INVERT>,   //スクロールのX軸反転
+            //<&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,   //スクロールのY軸反転
+            <&zip_scroll_scaler 1 50>,                           //スクロール量を1/14倍
+            <&zip_scroll_x_scaler 0 1>;
+    };
+
+    scroller_h {
+        layers = <2>;
+        input-processors = 
+            // <&zip_xy_transform INPUT_TRANSFORM_XY_SWAP>,        //X軸とY軸の入れ替え
+            // <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,       //X軸反転
+            <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,       //Y軸反転
+            <&zip_xy_to_scroll_mapper>,                         //スクロールモードに変更
+            <&zip_scroll_transform INPUT_TRANSFORM_X_INVERT>,   //スクロールのX軸反転
+            //<&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,   //スクロールのY軸反転
+            <&zip_scroll_y_scaler 0 1>,
+            <&zip_scroll_scaler 1 14>;                           //スクロール量を1/8倍
+    };
+
+
+    snipe {
+        layers = <3>;
+        input-processors = 
+            
+            <&zip_scroll_transform INPUT_TRANSFORM_X_INVERT>,   //スクロールのX軸反転
+            
+            <&zip_xy_scaler 1 20>;                           //スクロール量を1/8倍
+    };
+
+
+
+
 
     };
 };
@@ -57,7 +133,6 @@
         reg = <0>;
         spi-max-frequency = <2000000>;
         irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-        automouse-layer = <4>;
-        scroll-layers = <5>;
+
     };
 };
