@@ -5,7 +5,7 @@
 #include "keycode_japanese.h"
 
 
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 80
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 40
 
 &msc {
     acceleration-exponent = <0>;      // 0
@@ -128,6 +128,7 @@
             bindings = <&kp SPACE>;
             key-positions = <10 13>;
             layers = <0>;
+            timeout-ms = <250>;
         };
 
 
